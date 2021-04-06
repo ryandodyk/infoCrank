@@ -13,12 +13,6 @@ def flipInd (array, ind):
     index = len(array) - ind - 1
     return index
 
-# Get the minimum value inside of the considered interval
-def qualityCheck (start, end, data):
-    consider = data[start:end]
-    localMin = min(consider[:,1])
-    return localMin
-
 # Run a dialog to select a directory
 def fileDialog():
     # Eventually replace this with an actual file dialog
@@ -32,85 +26,74 @@ def checkFolderContents(directory):
     else:
         return False
 
+
+# Get the max value in each bucket
+def findThresholds (periods, array, reversearray):
+    buckets = makeBuckets(periods, array, reversearray)
+
+    thresholds = [max(t) for t in buckets]
+        
+    return thresholds
+
+# Get the minimum value inside of the considered interval
+def qualityCheck (start, end, data):
+    consider = data[start:end]
+    localMin = min(consider[:,1])
+    return localMin
+
+
+# Adds value to bucket depending on length of interval
+def addToBucket (periods, buckets, array, start, fin):
+
+    interval = array[fin,0] - array[start,0]
+    
+    for k in range(0,len(periods)):
+        if periods[k]-0.05 < interval < periods[k]+0.5:
+            buckets[k].append(qualityCheck(start,fin, array))
+
+
+    return buckets
+
 # Do most of the calculations
-def thresholdCalc (periods, array, reverseArray):
-    out = []
-    # iterate through each row to find where time is in correct range and power matches criteria
-    for period in periods:
-        thresholds = [0]
+def makeBuckets (periods, array, reverseArray):
+    
+    # Should automate creating these buckets so that this is more responsive
+    buckets = [[],[],[],[],[],[]]
 
-        for i in range(0, len(reverseArray)):
-            start = flipInd(reverseArray, i)
+    for i in range(0,len(reverseArray)):
 
-            for j in range(start, len(array)):
-                # Find the timespan being considered by the program
-                interval = abs(array[j,0] - array[start,0])
+        fin = flipInd(reverseArray, i)
+        
+        for j in range(0,fin):
+            
+            buckets = addToBucket (periods, buckets, array, j, fin)
 
-                # Filter out when interval is right size
-                if interval <= (period+0.5) and interval > (period-0.05): 
-                    if min(array[start,1], array[j,1]) > max(thresholds):
-
-                        thresholds.append( qualityCheck(min(start,j), max(start,j), array) )
-
-
-        out.append(max(thresholds))
-    return out
+    return buckets
 
 # Start Point
 def main():
     
     # Define which ranges we want max sustained power for
-    periods = [1,5,10,15,30]
+    periods = [1,5,10,15,30, 60]
 
     inFolder = fileDialog()
 
-    if checkFolderContents(inFolder):
+    if checkFolderContents( inFolder ):
 
-        pwrRaw = convertCSV(os.path.join(inFolder, "bothPower.csv"))
+        pwrRaw = convertCSV( os.path.join(inFolder, "bothPower.csv") )
+        cadence = convertCSV( os.path.join(inFolder, "bothCadence.csv") )
 
         # Find time of max power
-        iMaxPwr = np.argmax(pwrRaw, axis=0)[1]
+        iMaxPwr = np.argmax( pwrRaw, axis=0 )[1]
 
-        pwrThresholds = thresholdCalc( periods, pwrRaw, np.flip(pwrRaw, axis=0) )
+        pwrThresholds = findThresholds( periods, pwrRaw, np.flip(pwrRaw, axis=0) )
 
         print(pwrThresholds)
+
 
     else:
         print("Selected folder missing required files")
 
-"""
-# Initialize output array
-out = []
-
-# iterate through each row to find where time is in correct range and power matches criteria
-for period in periods:
-    thresholds = [0]
-    for i in range(0, len(pwrFlip)):
-        start = flipInd(pwrFlip, i)
-
-        for j in range(start, len(pwrRaw)):
-            # Find the timespan being considered by the program
-            interval = abs(pwrRaw[j,0] - pwrRaw[start,0])
-
-            # Filter out when interval is right size
-            if interval <= (period+0.5) and interval > (period-0.05): 
-                if min(pwrRaw[start,1], pwrRaw[j,1]) > max(thresholds):
-                    fin = j
-                    # QC check to make sure that it takes the minimum value in the time range
-
-                    for k in range(min(start, fin), max(start, fin)):
-                        if t== 0:
-                            t= pwrRaw[k,1]
-                        if pwrRaw[k,1] < t:
-                            t= pwrRaw[k,1] 
-
-                    thresholds.append( qualityCheck(min(start,fin), max(start,fin), pwrRaw) )
-
-    # Add identified value to output array
-    out.append(max(thresholds))
-
-
-print(out)
-"""
+# In case I want to make this part of a bigger program in the future
 if __name__ == "__main__":
     main()
