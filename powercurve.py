@@ -1,7 +1,11 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import os
 import sys
+
+# Write output to csv file
+def exportCSV (path, data):
+    # Not sure if this is legal but I replaced the newline character with a comma and it worked beautifully
+    np.savetxt(path,data,fmt='%5.2f',delimiter=',',newline=',') 
 
 # given file address, convert file to CSV
 def convertCSV (address):
@@ -88,7 +92,7 @@ def main():
 
         pwrThresholds = findThresholds( periods, pwrRaw, np.flip(pwrRaw, axis=0) )
 
-        print(pwrThresholds)
+        exportCSV( os.path.join(inFolder, "output.csv"), pwrThresholds )
 
 
     else:
