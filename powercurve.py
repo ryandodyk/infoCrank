@@ -31,6 +31,15 @@ def checkFolderContents(directory):
         return False
 
 
+def findCadence( find, searchArray, cadenceArray ):
+    cadences = []
+    for f in range(0,len(find)):
+        index = np.where( searchArray == find[f] )[0]
+        cadences.append(cadenceArray[index[0]][1])
+    print(cadences)
+    return index
+
+
 # Get the max value in each bucket
 def findThresholds (periods, array, reversearray):
     buckets = makeBuckets(periods, array, reversearray)
@@ -40,7 +49,7 @@ def findThresholds (periods, array, reversearray):
     return thresholds
 
 # Get the minimum value inside of the considered interval
-def qualityCheck (start, end, data):
+def mmpCalc (start, end, data):
     consider = data[start:end]
     localMin = min(consider[:,1])
     return localMin
@@ -53,7 +62,7 @@ def addToBucket (periods, buckets, array, start, fin):
     
     for k in range(0,len(periods)):
         if periods[k]-0.05 < interval < periods[k]+0.5:
-            buckets[k].append(qualityCheck(start,fin, array))
+            buckets[k].append(mmpCalc(start,fin, array))
 
 
     return buckets
@@ -92,7 +101,13 @@ def main():
 
         pwrThresholds = findThresholds( periods, pwrRaw, np.flip(pwrRaw, axis=0) )
 
-        exportCSV( os.path.join(inFolder, "output.csv"), pwrThresholds )
+        cadenceThresholds = [np.argmax( cadence, axis=0 )[1]]
+        cadenceThresholds.extend(findCadence(pwrThresholds, pwrRaw, cadence))
+
+        o = list(zip(cadenceThresholds,pwrThresholds)) 
+
+        # This might be a hack but the parentheses don't print when I use zip even though it should give a tuple
+        exportCSV( os.path.join(inFolder, "output.csv"), [1,2,3,4])
 
 
     else:
