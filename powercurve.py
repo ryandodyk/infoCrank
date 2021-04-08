@@ -45,14 +45,16 @@ def findThresholds (periods, array, reversearray):
     buckets = makeBuckets(periods, array, reversearray)
 
     thresholds = [max(t) for t in buckets]
+    print(thresholds)
         
     return thresholds
 
 # Get the minimum value inside of the considered interval
 def mmpCalc (start, end, data):
-    consider = data[start:end]
-    localMin = min(consider[:,1])
-    return localMin
+    # consider is np.ndarray type
+    consider = data[start:end][:,1]
+    mmp = sum(consider)/len(consider)
+    return mmp
 
 
 # Adds value to bucket depending on length of interval
@@ -100,6 +102,7 @@ def main():
         iMaxPwr = np.argmax( pwrRaw, axis=0 )[1]
 
         pwrThresholds = findThresholds( periods, pwrRaw, np.flip(pwrRaw, axis=0) )
+        # Give something like [[mmp,interval start, interval end],[etc]]
 
         cadenceThresholds = [np.argmax( cadence, axis=0 )[1]]
         cadenceThresholds.extend(findCadence(pwrThresholds, pwrRaw, cadence))
