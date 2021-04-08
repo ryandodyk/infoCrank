@@ -1,0 +1,7 @@
+result in csv or xslx left to right one row for each effort
+max cadence, mmp 1s, cadence at same time as mmp 1s, same for other times and with torque
+see email
+csv format
+get 1 min of data
+definitely needs max cad
+
