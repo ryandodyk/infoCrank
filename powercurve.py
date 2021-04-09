@@ -1,4 +1,6 @@
 import numpy as np
+from tkinter import Tk, messagebox
+from tkinter.filedialog import askdirectory, asksaveasfile
 import os
 import sys
 
@@ -15,12 +17,16 @@ def convertCSV ( address ):
 # Run a dialog to select a directory
 def fileDialog():
     # Eventually replace this with an actual file dialog
-    directory = sys.argv[1]
+    Tk().withdraw()
+    try:
+        directory = askdirectory()
+    except:
+        sys.exit("No directory selected")
     return directory
 
 # Check that folder has the required files in it
 def checkFolderContents( directory ):
-    if os.path.isfile(os.path.join(directory, "bothPower.csv")) and os.path.isfile(os.path.join(directory, "bothCadence.csv")):
+    if os.path.isfile(os.path.join(directory, "bothPower.csv")) and os.path.isfile(os.path.join(directory, "bothCadence.csv")) and os.path.isfile(os.path.join(directory, "bothBurst.csv")):
         return True
     else:
         return False
@@ -96,34 +102,37 @@ def main():
     # Define which ranges we want max sustained power for
     periods = [1,5,10,15,30, 60]
 
-    inFolder = fileDialog()
+    while True:
+        inFolder = fileDialog()
 
-    if checkFolderContents( inFolder ):
-       
-        pwrRaw = convertCSV( os.path.join(inFolder, "bothPower.csv") )
-        cadence = convertCSV( os.path.join(inFolder, "bothCadence.csv") )
-        trq = convertCSV( os.path.join(inFolder, "bothBurst.csv") )
+        if checkFolderContents( inFolder ):
+           
+            pwrRaw = convertCSV( os.path.join(inFolder, "bothPower.csv") )
+            cadence = convertCSV( os.path.join(inFolder, "bothCadence.csv") )
+            trq = convertCSV( os.path.join(inFolder, "bothBurst.csv") )
 
-        buckets = makeBuckets ( periods, pwrRaw )
+            buckets = makeBuckets ( periods, pwrRaw )
 
-        pwrInd = findIndex ( buckets, pwrRaw )
-        trqInd = findIndex ( buckets, trq )
+            pwrInd = findIndex ( buckets, pwrRaw )
+            trqInd = findIndex ( buckets, trq )
 
-        output = [max(cadence[:,1])]
+            output = [max(cadence[:,1])]
 
-        # This could probably also be it's own function but it's easy enough here
-        for ind in pwrInd:
-            output.append(mmxCalc(ind,pwrRaw))
-            output.append(mmxCalc(ind,cadence))
-        for ind in trqInd:
-            output.append(mmxCalc(ind,trq))
-            
-        # This might be a hack but the parentheses don't print when I use zip even though it should give a tuple
-        exportCSV( os.path.join( inFolder, "output.csv"), output )
+            # This could probably also be it's own function but it's easy enough here
+            for ind in pwrInd:
+                output.append(mmxCalc(ind,pwrRaw))
+                output.append(mmxCalc(ind,cadence))
+            for ind in trqInd:
+                output.append(mmxCalc(ind,trq))
+                
+            # This might be a hack but the parentheses don't print when I use zip even though it should give a tuple
+            exportCSV( os.path.join( inFolder, "output.csv"), output )
+
+            sys.exit("File written successfully")
 
 
-    else:
-        print("Selected folder missing required files")
+        else:
+            messagebox.showerror("Error", "Missing required csv file")
 
 # In case I want to make this part of a bigger program in the future
 if __name__ == "__main__":
