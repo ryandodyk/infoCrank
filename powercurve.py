@@ -18,10 +18,7 @@ def convertCSV ( address ):
 def fileDialog():
     # Eventually replace this with an actual file dialog
     Tk().withdraw()
-    try:
-        directory = askdirectory()
-    except:
-        sys.exit("No directory selected")
+    directory = askdirectory()
     return directory
 
 # Check that folder has the required files in it
@@ -69,6 +66,8 @@ def makeBuckets ( periods, array ):
 
         for j in range(i+1,len(array)):
             interval = array[j,0] - array[i,0]
+            if interval > 65:
+                break
             
             for k in range(0,len(periods)):
                 if periods[k]-0.05 < interval < periods[k]+0.5:
