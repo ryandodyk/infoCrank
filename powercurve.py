@@ -6,8 +6,12 @@ import sys
 
 # Write output to csv file
 def exportCSV ( path, data ):
-    # Not sure if this is legal but I replaced the newline character with a comma and it worked beautifully
-    np.savetxt(path,data,fmt='%5.2f',delimiter=',',newline=',') 
+    try:
+        # Not sure if this is legal but I replaced the newline character with a comma and it worked beautifully
+        np.savetxt(path,data,fmt='%5.2f',delimiter=',',newline=',') 
+        sys.exit("File written successfully")
+    except PermissionError:
+        sys.exit("File failed to write, check your folder permissions")
 
 # given file address, convert file to CSV
 def convertCSV ( address ):
@@ -28,6 +32,16 @@ def checkFolderContents( directory ):
     else:
         return False
 
+# Find size of output array based on length of input
+# outputSize :: npArray -> List -> Int
+def outputSize ( array, periods ):
+    duration = array[len(array)-1,0] - array[0,0] 
+    try:
+        size = list(map(lambda k: k > duration, periods)).index(True) - 1
+    except:
+        size = len(periods)
+
+    return size
 
 def cadCalc( find, searchArray, cadenceArray ):
     cadences = []
@@ -58,9 +72,13 @@ def mmxCalc ( location, data ):
 # Make "Buckets" with all of the potential start and end times for each period to be checked later
 # makeBuckets :: list -> npArray -> array
 def makeBuckets ( periods, array ):
+
+    # Find how big to make buckets array
+    
+    size = outputSize( array, periods )
     
     # Should automate creating these buckets so that this is more responsive
-    buckets = [[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]]]
+    buckets = [[]for y in range(size)]
 
     for i in range(0,len(array)):
 
@@ -69,7 +87,7 @@ def makeBuckets ( periods, array ):
             if interval > 65:
                 break
             
-            for k in range(0,len(periods)):
+            for k in range(0,len(buckets)):
                 if periods[k]-0.05 < interval < periods[k]+0.5:
                     mmp = mmxCalc((i,j),array)
                     buckets[k].append([array[i,0],array[j,0],mmp])
@@ -118,17 +136,22 @@ def main():
             output = [max(cadence[:,1])]
 
             # This could probably also be it's own function but it's easy enough here
-            for ind in pwrInd:
-                output.append(mmxCalc(ind,pwrRaw))
-                output.append(mmxCalc(ind,cadence))
-            for ind in trqInd:
-                output.append(mmxCalc(ind,trq))
-                
+            # Combines all of the outputs together and adds zeros if missing values
+            for p in range(0,len(periods)):
+                if p < len(pwrInd):
+                    output.append(mmxCalc(pwrInd[p],pwrRaw))
+                    output.append(mmxCalc(pwrInd[p],cadence))
+                else:
+                    output.append(0)
+
+            for q in range(0,len(periods)):
+                if q < len(trqInd):
+                    output.append(mmxCalc(trqInd[q],trq))
+                else:
+                    output.append(0)
+
             # This might be a hack but the parentheses don't print when I use zip even though it should give a tuple
             exportCSV( os.path.join( inFolder, "output.csv"), output )
-
-            sys.exit("File written successfully")
-
 
         else:
             messagebox.showerror("Error", "Missing required csv file")
