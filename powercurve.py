@@ -60,7 +60,7 @@ def mmxCalc ( location, data ):
 def makeBuckets ( periods, array ):
     
     # Should automate creating these buckets so that this is more responsive
-    buckets = [[],[],[],[],[],[]]
+    buckets = [[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]],[[0,0,0]]]
 
     for i in range(0,len(array)):
 
