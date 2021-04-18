@@ -37,7 +37,7 @@ def checkFolderContents( directory ):
 def outputSize ( array, periods ):
     duration = array[len(array)-1,0] - array[0,0] 
     try:
-        size = list(map(lambda k: k > duration, periods)).index(True) - 1
+        size = list(map(lambda k: k > duration, periods)).index(True)
     except:
         size = len(periods)
 
