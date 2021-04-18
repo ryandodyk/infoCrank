@@ -48,7 +48,6 @@ def cadCalc( find, searchArray, cadenceArray ):
     for f in range(0,len(find)):
         index = np.where( searchArray == find[f] )[0]
         cadences.append(cadenceArray[index[0]][1])
-    print(cadences)
     return index
 
 
@@ -60,6 +59,16 @@ def findThresholds ( locations, array ):
     thresholds = [max(t) for t in buckets]
         
     return thresholds
+
+# Find the 0.5s max average cadence
+# maxCadCalc :: npArray -> float
+def maxCadCalc ( array ):
+    ind = np.where( array == np.amax(array[:,1]) ) [0] [0]
+    start = ind
+    fin = ind + 1
+    print(array[ind])
+    avgCad = mmxCalc ( (start, fin), array )
+    return avgCad
 
 # calculate the mean of whatever you pass into it (power, cadence, torque, etc)
 # mmxCalc :: tuple -> npArray -> float
@@ -133,7 +142,7 @@ def main():
             pwrInd = findIndex ( buckets, pwrRaw )
             trqInd = findIndex ( buckets, trq )
 
-            output = [max(cadence[:,1])]
+            output = [ maxCadCalc(cadence) ]
 
             # This could probably also be it's own function but it's easy enough here
             # Combines all of the outputs together and adds zeros if missing values
