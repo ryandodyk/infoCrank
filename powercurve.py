@@ -64,9 +64,8 @@ def findThresholds ( locations, array ):
 # maxCadCalc :: npArray -> float
 def maxCadCalc ( array ):
     ind = np.where( array == np.amax(array[:,1]) ) [0] [0]
-    start = ind
+    start = ind -1
     fin = ind + 1
-    print(array[ind])
     avgCad = mmxCalc ( (start, fin), array )
     return avgCad
 
