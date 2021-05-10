@@ -125,7 +125,7 @@ def findIndex ( buckets, array ):
 def main():
     
     # Define which ranges we want max sustained power for
-    periods = [1,5,10,15,30,60]
+    periods = [1,5,10,15,20,30,60]
 
     while True:
         inFolder = fileDialog()
