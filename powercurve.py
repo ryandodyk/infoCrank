@@ -125,7 +125,7 @@ def findIndex ( buckets, array ):
 def main():
     
     # Define which ranges we want max sustained power for
-    periods = [1,5,10,15,30, 60]
+    periods = [1,5,10,15,30,60]
 
     while True:
         inFolder = fileDialog()
@@ -150,6 +150,7 @@ def main():
                     output.append(mmxCalc(pwrInd[p],pwrRaw))
                     output.append(mmxCalc(pwrInd[p],cadence))
                 else:
+                    output.append(0)
                     output.append(0)
 
             for q in range(0,len(periods)):

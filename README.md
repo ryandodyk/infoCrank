@@ -7,4 +7,4 @@ Software for working with InfoCrank data
 ## Features I think would be cool
 - Calculate Joules expended over the course of efforts
 - Save user data and compare with past efforts
-
+- Calculate drag force based on speed and power/torque
