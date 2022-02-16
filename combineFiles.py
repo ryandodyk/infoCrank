@@ -78,8 +78,6 @@ def main():
 
     # Remove data outside of 5s before and 5s after net torque goes below 0
     tStart = tMax - 5
-
-    tFin = tB.at[np.where((tB['torque'] < 0) & (tB['time'] > tStart+5 ))[0][0], 'time']
     tB = tB.loc[((tB['time'] > tStart) & (tB['time'] < tFin))]
     tL = tL.loc[((tL['time'] > tStart) & (tL['time'] < tFin))]
     tR = tR.loc[((tR['time'] > tStart) & (tR['time'] < tFin))]
